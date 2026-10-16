@@ -11,14 +11,27 @@ namespace BookNameEditTool
 
         public Form1()
         {
+            // デザイナー上での例外を防ぐため、デザイン時は InitializeComponent の例外を吸収して終了する
+            if (IsDesignMode())
+            {
+                try
+                {
+                    InitializeComponent();
+                }
+                catch
+                {
+                    // デザイナー表示中の例外は無視してデザイナーホストに制御を戻す
+                }
+
+                // デザイン時はこれ以上の初期化を行わない
+                return;
+            }
+
             InitializeComponent();
             comboBox2.SelectedIndexChanged += comboBox2_SelectedIndexChanged;
 
-            // デザイナー表示時は実行しない
-            if (!IsDesignMode())
-            {
-                LoadWorkPath();
-            }
+            // 通常実行時のみワークパスを読み込む
+            LoadWorkPath();
         }
 
         private static bool IsDesignMode()
