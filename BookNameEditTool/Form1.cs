@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.ComponentModel;
+using System.Diagnostics;
 using Microsoft.Data.Sqlite;
 
 namespace BookNameEditTool
@@ -11,7 +13,32 @@ namespace BookNameEditTool
         {
             InitializeComponent();
             comboBox2.SelectedIndexChanged += comboBox2_SelectedIndexChanged;
-            LoadWorkPath();
+
+            // デザイナー表示時は実行しない
+            if (!IsDesignMode())
+            {
+                LoadWorkPath();
+            }
+        }
+
+        private static bool IsDesignMode()
+        {
+            // デザイナー上では LicenseManager.UsageMode が Designtime になる
+            if (LicenseManager.UsageMode == LicenseUsageMode.Designtime)
+            {
+                return true;
+            }
+
+            // Visual Studio のプロセス名でも判定（保険）
+            try
+            {
+                using var proc = Process.GetCurrentProcess();
+                return string.Equals(proc.ProcessName, "devenv", StringComparison.OrdinalIgnoreCase);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private void comboBox2_SelectedIndexChanged(object? sender, EventArgs e)
