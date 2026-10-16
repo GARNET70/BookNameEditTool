@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 
 namespace BookNameEditTool
@@ -175,6 +176,14 @@ namespace BookNameEditTool
                 {
                     MessageBox.Show("一致するレコードが見つかりませんでした。", "検索", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
+                }
+                else if (candidates.Count == 1)
+                {
+                    //検索結果が1件の場合は自動で表示する
+                    button7_Click(sender, e);
+                    //実行までにバッファを設ける
+                    Task.Delay(1000).Wait();
+                    button3_Click(sender, e);
                 }
 
                 comboBox3.Items.AddRange(candidates.Cast<object>().ToArray());
@@ -415,7 +424,6 @@ namespace BookNameEditTool
 
             // UI 更新
             ClearBookFields();
-            textBox7.Clear();
             comboBox3.Items.Clear();
             comboBox3.Text = string.Empty;
             comboBox2.Items.RemoveAt(selectedIndex);
@@ -563,6 +571,8 @@ namespace BookNameEditTool
             textBox4.Clear();
             textBox5.Clear();
             textBox6.Clear();
+            textBox7.Clear();
+            textBox8.Clear();
         }
 
         /// <summary>
