@@ -21,3 +21,6 @@ _ReSharper*/
 *.ReSharper*/
 *.ide
 *.DS_Store
+/BookNameEditTool/bin/Debug/net8.0-windows
+/BookNameEditTool/obj/Debug/net8.0-windows
+/BookNameEditTool/obj/Release/net8.0-windows

@@ -296,7 +296,7 @@ namespace BookNameEditTool
                 comboBox3.Items[selectedIndex] = updatedCandidate;
                 comboBox3.SelectedIndex = selectedIndex;
 
-                MessageBox.Show("表示内容でデータベースを更新しました。", "DB登録", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                //MessageBox.Show("表示内容でデータベースを更新しました。", "DB登録", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (SqliteException exception)
             {
