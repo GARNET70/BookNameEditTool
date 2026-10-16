@@ -104,7 +104,7 @@ namespace BookNameEditTool
                 var lastSpaceIndex = title.LastIndexOf(' ');
                 if (lastSpaceIndex >= 0)
                 {
-                    var folderVolume = title[(lastSpaceIndex + 1)..].Trim();
+                    var folderVolume = title[(lastSpaceIndex + 2)..].Trim();
                     _folderVolume = string.IsNullOrWhiteSpace(folderVolume) ? null : folderVolume;
                     title = title[..lastSpaceIndex];
                 }
