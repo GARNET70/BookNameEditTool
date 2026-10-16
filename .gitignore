@@ -3,3 +3,21 @@
 ################################################################################
 
 /.vs/BookNameEditTool/FileContentIndex
+# Visual Studio 全体で無視するフォルダ・ファイル
+/.vs/
+/bin/
+/obj/
+
+# 以下は一般的な Visual Studio / .NET の無視設定
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.vscode/
+packages/
+*.nupkg
+*.log
+_ReSharper*/
+*.ReSharper*/
+*.ide
+*.DS_Store
