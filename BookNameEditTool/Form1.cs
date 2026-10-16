@@ -96,13 +96,24 @@ namespace BookNameEditTool
                 var folderVolume = title[(versionMarkerIndex + 2)..].Trim();
                 _folderVolume = string.IsNullOrWhiteSpace(folderVolume) ? null : folderVolume;
                 title = title[..versionMarkerIndex];
+                title = title.Replace('_', ' ').Trim();
             }
             else
             {
-                _folderVolume = null;
+                //後ろから最初の半角スペースを探して、そこから後ろの文字列を巻数として扱う
+                var lastSpaceIndex = title.LastIndexOf(' ');
+                if (lastSpaceIndex >= 0)
+                {
+                    var folderVolume = title[(lastSpaceIndex + 1)..].Trim();
+                    _folderVolume = string.IsNullOrWhiteSpace(folderVolume) ? null : folderVolume;
+                    title = title[..lastSpaceIndex];
+                }
+                else
+                {
+                    _folderVolume = null;
+                }
             }
-
-            title = title.Replace('_', ' ').Trim();
+      
             if (string.IsNullOrWhiteSpace(title))
             {
                 MessageBox.Show("検索する対象フォルダを選択してください。", "検索", MessageBoxButtons.OK, MessageBoxIcon.Information);

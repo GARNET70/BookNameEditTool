@@ -1,11 +1,11 @@
 {
-    "comp":{
-        "path": "D:\\VM\\share\\BookNameEditTool\\TestFolder_OK"
-    },
-    "work":{
-        "path": "D:\\VM\\share\\BookNameEditTool\\TestFolder"
-    },
-    "DB":{
-        "path": "D:\\VM\\share\\BookNameEditTool\\BookNameEditTool\\db\\booklist.db"
-    }
+  "comp": {
+    "path": "D:\\00_MyData\\04_本\\98_work\\01_OK\\00_COMPLETE"
+  },
+  "work": {
+    "path": "D:\\00_MyData\\04_本\\98_work\\01_OK\\01_OK"
+  },
+  "DB": {
+    "path": "D:\\python\\20_BookOrganizer\\booklist.db"
+  }
 }
