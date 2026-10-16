@@ -5,10 +5,14 @@ using Microsoft.Data.Sqlite;
 
 namespace BookNameEditTool
 {
+    /// <summary>
+    /// メインのフォーム。書籍フォルダ名の検索、編集、リネーム、およびデータベース連携の UI ロジックを含みます。
+    /// </summary>
     public partial class Form1 : Form
     {
         private string? _folderVolume;
 
+        #region Designer generated code
         public Form1()
         {
             // デザイナー上での例外を防ぐため、デザイン時は InitializeComponent の例外を吸収して終了する
@@ -53,37 +57,9 @@ namespace BookNameEditTool
                 return false;
             }
         }
+        #endregion
 
-        private void comboBox2_SelectedIndexChanged(object? sender, EventArgs e)
-        {
-            textBox8.Text = comboBox2.SelectedIndex >= 0 ? comboBox2.Text : string.Empty;
-        }
-
-        private void LoadWorkPath()
-        {
-            var pathsFile = Path.Combine(AppContext.BaseDirectory, "json", "paths.json");
-            if (!File.Exists(pathsFile))
-            {
-                return;
-            }
-
-            using var document = JsonDocument.Parse(File.ReadAllText(pathsFile));
-            if (!document.RootElement.TryGetProperty("work", out var work) ||
-                !work.TryGetProperty("path", out var pathElement))
-            {
-                return;
-            }
-
-            var workPath = pathElement.GetString();
-            if (string.IsNullOrWhiteSpace(workPath))
-            {
-                return;
-            }
-
-            comboBox1.Items.Add(workPath);
-            comboBox1.SelectedIndex = 0;
-        }
-
+        #region button1_Click: ワークパスのフォルダ一覧を取得して comboBox2 に追加
         private void button1_Click(object? sender, EventArgs e)
         {
             comboBox2.Items.Clear();
@@ -108,7 +84,9 @@ namespace BookNameEditTool
                 comboBox2.SelectedIndex = 0;
             }
         }
+        #endregion
 
+        #region button2_Click: データベース検索と候補リストの更新
         private void button2_Click(object? sender, EventArgs e)
         {
             var title = textBox8.Text.Trim();
@@ -190,6 +168,7 @@ namespace BookNameEditTool
 
                 comboBox3.Items.AddRange(candidates.Cast<object>().ToArray());
                 comboBox3.SelectedIndex = 0;
+                label13.Text = $"検索結果: {candidates.Count} 件";
                 label11.Text = candidates[0].Volume;
                 if (_folderVolume is null)
                 {
@@ -201,13 +180,17 @@ namespace BookNameEditTool
                 MessageBox.Show($"データベース検索に失敗しました。{Environment.NewLine}{exception.Message}", "検索", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+        #endregion
 
+        #region button3_Click: フォルダ名の生成
         private void button3_Click(object? sender, EventArgs e)
         {
             var volume = textBox4.Text.Trim().PadLeft(2, '0');
             textBox7.Text = $"[{textBox3.Text.Trim()}] {textBox1.Text.Trim()} 第{volume}巻";
         }
+        #endregion
 
+        #region button4_Click: フォルダ名のリネーム
         private void button4_Click(object? sender, EventArgs e)
         {
             var parentPath = comboBox1.Text;
@@ -264,7 +247,9 @@ namespace BookNameEditTool
                 MessageBox.Show($"フォルダのリネームに失敗しました。{Environment.NewLine}{exception.Message}", "リネーム", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+        #endregion
 
+        #region button5_Click: データベースの更新
         private void button5_Click(object? sender, EventArgs e)
         {
             if (comboBox3.SelectedItem is not BookCandidate candidate)
@@ -361,7 +346,9 @@ namespace BookNameEditTool
                 MessageBox.Show($"データベースを更新できませんでした。DB.path、DBファイルの状態、入力内容を確認してください。{Environment.NewLine}{exception.Message}", "DB登録", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+        #endregion
 
+        #region button6_Click: 完了ボタンの処理
         private void button6_Click(object? sender, EventArgs e)
         {
             var selectedIndex = comboBox2.SelectedIndex;
@@ -371,6 +358,8 @@ namespace BookNameEditTool
                 return;
             }
 
+
+
             ClearBookFields();
             textBox7.Clear();
             comboBox3.Items.Clear();
@@ -378,16 +367,92 @@ namespace BookNameEditTool
             comboBox2.Items.RemoveAt(selectedIndex);
             _folderVolume = null;
             label11.Text = string.Empty;
+            label13.Text = string.Empty;
 
             if (selectedIndex < comboBox2.Items.Count)
             {
                 comboBox2.SelectedIndex = selectedIndex;
+                button2_Click(sender, e);
             }
             else
             {
                 comboBox2.SelectedIndex = -1;
                 comboBox2.Text = string.Empty;
             }
+
+        }
+        #endregion
+
+        #region button7_Click: 更新候補の表示
+        private void button7_Click(object? sender, EventArgs e)
+        {
+            if (comboBox3.SelectedItem is not BookCandidate candidate)
+            {
+                MessageBox.Show("表示する更新候補を選択してください。", "OK", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            textBox1.Text = candidate.TitleJP;
+            textBox2.Text = candidate.TitleEN;
+            textBox3.Text = candidate.Author;
+            textBox4.Text = _folderVolume ?? candidate.Volume;
+            label11.Text = candidate.Volume;
+            textBox5.Text = candidate.Status;
+            textBox6.Text = candidate.Memo;
+        }
+        #endregion
+
+        #region クラス
+
+        private string? LoadDatabasePath()
+        {
+            var pathsFile = Path.Combine(AppContext.BaseDirectory, "json", "paths.json");
+            if (!File.Exists(pathsFile))
+            {
+                return null;
+            }
+
+            using var document = JsonDocument.Parse(File.ReadAllText(pathsFile));
+            if (!document.RootElement.TryGetProperty("DB", out var database) ||
+                !database.TryGetProperty("path", out var pathElement))
+            {
+                return null;
+            }
+
+            var databasePath = pathElement.GetString();
+            return string.IsNullOrWhiteSpace(databasePath)
+                ? null
+                : Path.GetFullPath(databasePath, AppContext.BaseDirectory);
+        }
+
+        private void LoadWorkPath()
+        {
+            var pathsFile = Path.Combine(AppContext.BaseDirectory, "json", "paths.json");
+            if (!File.Exists(pathsFile))
+            {
+                return;
+            }
+
+            using var document = JsonDocument.Parse(File.ReadAllText(pathsFile));
+            if (!document.RootElement.TryGetProperty("work", out var work) ||
+                !work.TryGetProperty("path", out var pathElement))
+            {
+                return;
+            }
+
+            var workPath = pathElement.GetString();
+            if (string.IsNullOrWhiteSpace(workPath))
+            {
+                return;
+            }
+
+            comboBox1.Items.Add(workPath);
+            comboBox1.SelectedIndex = 0;
+        }
+
+        private void comboBox2_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            textBox8.Text = comboBox2.SelectedIndex >= 0 ? comboBox2.Text : string.Empty;
         }
 
         private static string SanitizeFolderName(string folderName)
@@ -415,44 +480,6 @@ namespace BookNameEditTool
             "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"
         };
 
-        private void button7_Click(object? sender, EventArgs e)
-        {
-            if (comboBox3.SelectedItem is not BookCandidate candidate)
-            {
-                MessageBox.Show("表示する更新候補を選択してください。", "OK", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            textBox1.Text = candidate.TitleJP;
-            textBox2.Text = candidate.TitleEN;
-            textBox3.Text = candidate.Author;
-            textBox4.Text = _folderVolume ?? candidate.Volume;
-            label11.Text = candidate.Volume;
-            textBox5.Text = candidate.Status;
-            textBox6.Text = candidate.Memo;
-        }
-
-        private string? LoadDatabasePath()
-        {
-            var pathsFile = Path.Combine(AppContext.BaseDirectory, "json", "paths.json");
-            if (!File.Exists(pathsFile))
-            {
-                return null;
-            }
-
-            using var document = JsonDocument.Parse(File.ReadAllText(pathsFile));
-            if (!document.RootElement.TryGetProperty("DB", out var database) ||
-                !database.TryGetProperty("path", out var pathElement))
-            {
-                return null;
-            }
-
-            var databasePath = pathElement.GetString();
-            return string.IsNullOrWhiteSpace(databasePath)
-                ? null
-                : Path.GetFullPath(databasePath, AppContext.BaseDirectory);
-        }
-
         private void ClearBookFields()
         {
             textBox1.Clear();
@@ -463,6 +490,9 @@ namespace BookNameEditTool
             textBox6.Clear();
         }
 
+        /// <summary>
+        /// データベース検索からの候補を表すレコード型です。
+        /// </summary>
         private sealed record BookCandidate(
             long RowId,
             string TitleJP,
@@ -475,5 +505,6 @@ namespace BookNameEditTool
             public override string ToString() =>
                 string.IsNullOrWhiteSpace(TitleJP) ? TitleEN : TitleJP;
         }
+        #endregion
     }
 }

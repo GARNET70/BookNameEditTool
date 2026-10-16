@@ -1,5 +1,8 @@
 namespace BookNameEditTool
 {
+    /// <summary>
+    /// アプリケーションのエントリポイントを含むクラスです。
+    /// </summary>
     internal static class Program
     {
         /// <summary>
