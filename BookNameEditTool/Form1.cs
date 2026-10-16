@@ -94,11 +94,14 @@ namespace BookNameEditTool
                 return;
             }
 
-            comboBox2.Items.AddRange(Directory.GetDirectories(workPath)
+            var dirs = Directory.GetDirectories(workPath)
                 .Select(Path.GetFileName)
                 .Where(name => name is not null)
                 .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
-                .ToArray());
+                .Select(name => (object)name!)
+                .ToArray();
+
+            comboBox2.Items.AddRange(dirs);
 
             if (comboBox2.Items.Count > 0)
             {
