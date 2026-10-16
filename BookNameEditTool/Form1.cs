@@ -358,8 +358,51 @@ namespace BookNameEditTool
                 return;
             }
 
+            var parentPath = comboBox1.Text;
+            var sourceName = comboBox2.Text;
 
+            if (string.IsNullOrWhiteSpace(parentPath) || string.IsNullOrWhiteSpace(sourceName))
+            {
+                MessageBox.Show("対象フォルダが不明です。フォルダを選択してください。", "完了", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return; 
+            }
 
+            var sourcePath = Path.Combine(parentPath, sourceName);
+            if (!Directory.Exists(sourcePath))
+            {
+                MessageBox.Show($"対象フォルダが見つかりません: {sourcePath}", "完了", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            var compPath = LoadCompPath();
+            if (string.IsNullOrWhiteSpace(compPath))
+            {
+                MessageBox.Show("paths.json に comp.path が設定されていません。", "完了", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            try
+            {
+                Directory.CreateDirectory(compPath);
+
+                var sanitized = SanitizeFolderName(sourceName);
+                var destinationPath = Path.Combine(compPath, sanitized);
+                var attempt = 1;
+                while (Directory.Exists(destinationPath) || File.Exists(destinationPath))
+                {
+                    destinationPath = Path.Combine(compPath, sanitized + "_" + attempt.ToString());
+                    attempt++;
+                }
+
+                Directory.Move(sourcePath, destinationPath);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"フォルダの移動に失敗しました: {ex.Message}", "完了", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // UI 更新
             ClearBookFields();
             textBox7.Clear();
             comboBox3.Items.Clear();
@@ -423,6 +466,27 @@ namespace BookNameEditTool
             return string.IsNullOrWhiteSpace(databasePath)
                 ? null
                 : Path.GetFullPath(databasePath, AppContext.BaseDirectory);
+        }
+
+        private string? LoadCompPath()
+        {
+            var pathsFile = Path.Combine(AppContext.BaseDirectory, "json", "paths.json");
+            if (!File.Exists(pathsFile))
+            {
+                return null;
+            }
+
+            using var document = JsonDocument.Parse(File.ReadAllText(pathsFile));
+            if (!document.RootElement.TryGetProperty("comp", out var comp) ||
+                !comp.TryGetProperty("path", out var pathElement))
+            {
+                return null;
+            }
+
+            var compPath = pathElement.GetString();
+            return string.IsNullOrWhiteSpace(compPath)
+                ? null
+                : Path.GetFullPath(compPath, AppContext.BaseDirectory);
         }
 
         private void LoadWorkPath()
