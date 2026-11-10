@@ -122,7 +122,7 @@ namespace BookNameEditTool
             }
 
             comboBox3.Items.Clear();
-            ClearBookFields();
+            //ClearBookFields();
             label11.Text = string.Empty;
             if (_folderVolume is not null)
             {
@@ -177,17 +177,19 @@ namespace BookNameEditTool
                     MessageBox.Show("一致するレコードが見つかりませんでした。", "検索", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
-                else if (candidates.Count == 1)
+
+                comboBox3.Items.AddRange(candidates.Cast<object>().ToArray());
+                comboBox3.SelectedIndex = 0;
+
+                if (candidates.Count == 1)
                 {
                     //検索結果が1件の場合は自動で表示する
                     button7_Click(sender, e);
                     //実行までにバッファを設ける
-                    Task.Delay(1000).Wait();
+                    Task.Delay(500).Wait();
                     button3_Click(sender, e);
                 }
 
-                comboBox3.Items.AddRange(candidates.Cast<object>().ToArray());
-                comboBox3.SelectedIndex = 0;
                 label13.Text = $"検索結果: {candidates.Count} 件";
                 label11.Text = candidates[0].Volume;
                 if (_folderVolume is null)
